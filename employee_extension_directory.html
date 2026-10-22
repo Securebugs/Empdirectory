@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Extension Directory</title>
+<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3089/3089786.png">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body { height: 100vh; }
+    body {
+      padding: 14px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f6fb;
+      color: #172033;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+    .directory {
+      width: 100%;
+      max-width: 560px;
+      height: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border: 1px solid #e5eaf2;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 12px 36px rgba(25, 45, 80, .08);
+      overflow: hidden;
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #4263eb;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+    }
+    h1 { margin: 0; font-size: 25px; letter-spacing: -.5px; }
+    .subtitle { margin: 9px 0 16px; color: #697386; font-size: 14px; line-height: 1.5; }
+    .search-wrap { position: relative; }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7c8799;
+      font-size: 18px;
+      pointer-events: none;
+    }
+    #searchInput {
+      width: 100%;
+      border: 1px solid #dce3ee;
+      border-radius: 12px;
+      padding: 14px 44px 14px 43px;
+      outline: none;
+      font-size: 15px;
+      color: #172033;
+      background: #fbfcfe;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    #searchInput:focus {
+      border-color: #4263eb;
+      box-shadow: 0 0 0 3px rgba(66, 99, 235, .12);
+      background: #fff;
+    }
+    #clearBtn {
+      position: absolute;
+      right: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 0;
+      background: transparent;
+      color: #697386;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 7px;
+      display: none;
+    }
+    .result-meta {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 20px 2px 10px;
+      color: #697386;
+      font-size: 12px;
+    }
+    .count {
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #364fc7;
+      font-weight: 700;
+      padding: 5px 9px;
+      white-space: nowrap;
+    }
+    #results {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 1px 4px 4px 1px;
+      scrollbar-width: thin;
+      scrollbar-color: #c7d2e5 transparent;
+    }
+    #results::-webkit-scrollbar { width: 6px; }
+    #results::-webkit-scrollbar-thumb { background: #c7d2e5; border-radius: 10px; }
+    #results::-webkit-scrollbar-track { background: transparent; }
+    .result-card {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 14px;
+      border: 1px solid #e8edf5;
+      border-radius: 13px;
+      background: #fff;
+      animation: appear .15s ease-out;
+    }
+    .avatar {
+      width: 43px;
+      height: 43px;
+      flex: 0 0 43px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: #eef2ff;
+      color: #364fc7;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .details { min-width: 0; flex: 1; }
+    .employee-name { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+    .label { margin-top: 4px; font-size: 12px; color: #7a8495; }
+    .extension {
+      flex: 0 0 auto;
+      border: 1px solid #dce5ff;
+      background: #f5f7ff;
+      color: #2f4fc7;
+      border-radius: 9px;
+      padding: 8px 10px;
+      font-size: 15px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .empty {
+      text-align: center;
+      border: 1px dashed #dce3ee;
+      border-radius: 13px;
+      padding: 28px 14px;
+      color: #697386;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .footer { flex: 0 0 auto; margin-top: 10px; text-align: center; color: #98a1b1; font-size: 11px; }
+    @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 480px) {
+      body { padding: 8px; }
+      .directory { padding: 16px 12px; border-radius: 15px; }
+      h1 { font-size: 21px; }
+      .subtitle { margin-bottom: 12px; font-size: 13px; }
+      .result-meta { margin-top: 14px; }
+      .result-card { padding: 10px; gap: 10px; }
+      .avatar { width: 38px; height: 38px; flex-basis: 38px; }
+      .extension { padding: 7px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="directory">
+    <p class="eyebrow">Quick lookup</p>
+    <h1>Employee Extension Directory</h1>
+    <p class="subtitle">Search an employee by name or extension number to find who it belongs to.</p>
+
+    <div class="search-wrap">
+      <span class="search-icon" aria-hidden="true">⌕</span>
+      <input id="searchInput" type="search" placeholder="Search name or extension..." autocomplete="off" aria-label="Search by employee name or extension" />
+      <button id="clearBtn" type="button" aria-label="Clear search" title="Clear search">×</button>
+    </div>
+
+    <div class="result-meta">
+      <span id="resultLabel">All employees</span>
+      <span class="count" id="resultCount">66 employees</span>
+    </div>
+    <section id="results" aria-live="polite"></section>
+    <div class="footer">Employee directory · Steneral Consulting</div>
+  </main>
+
+  <script>
+    const employees = [
+      ["Samad Siddaqui", "048"],
+      ["Nishchal Mittal", "049"],
+      ["Abhinav Goyal", "080"],
+      ["Tarun Rathi", "085"],
+      ["Aditya Raghav Chauhan", "102"],
+      ["Shiv Yadav", "109"],
+      ["Shreya Dixit", "113"],
+      ["Prabhat Mishra", "114"],
+      ["Srajan Dubey", "124"],
+      ["Chandan Singh", "127"],
+      ["Sahil Jangra", "128"],
+      ["Sunil Kumar Patel", "135"],
+      ["Sourav", "138"],
+      ["Abhishek Bhardwaj", "147"],
+      ["Abhishek Kumar", "150"],
+      ["Pradeep Kumar Pathak", "153"],
+      ["Manu Sharma", "157"],
+      ["Deepak Panday", "158"],
+      ["Aakash Singh", "162"],
+      ["Abhi", "167"],
+      ["Abhishek Yadav", "170"],
+      ["Ashwini Singh", "175"],
+      ["Nakul", "180"],
+      ["Hemratan Agnihotri", "184"],
+      ["Shivam Tomar", "193"],
+      ["Riya Dcruze", "239"],
+      ["Aditya Vishwakarma", "256"],
+      ["Robin", "290"],
+      ["Manish Tyagi", "309"],
+      ["Manish Kumar Yadav", "329"],
+      ["Ritul Sachan", "364"],
+      ["Suyash Sharma", "368"],
+      ["Karan Kapoor", "422"],
+      ["Sachin Sharma", "425"],
+      ["Harish Sharma", "439"],
+      ["Ajit Kumar Singh", "445"],
+      ["Stock", "451"],
+      ["Arbaz Alam", "491"],
+      ["Pravesh Kumar", "497"],
+      ["Manish Sharma", "500"],
+      ["Ayush", "504"],
+      ["Karan", "550"],
+      ["Heena Singh", "572"],
+      ["Vinay Kumar Sah", "574"],
+      ["Arushi Yadav", "610"],
+      ["Uvesh", "637"],
+      ["Ankit Kumar Singh", "644"],
+      ["Mayank Kapoor", "786"],
+      ["Khushi Yadav", "862"],
+      ["Mahindra Pratap Singh", "869"],
+      ["Ajay Kumar", "879"],
+      ["Nadeem Khan", "883"],
+      ["Vinay Shisodia", "885"],
+      ["Ayush Singh", "897"],
+      ["Nandan Kumar Thakur", "900"],
+      ["Urvashi", "909"],
+      ["Bhavesh Kumar Jha", "919"],
+      ["Sajan Sharma", "939"],
+      ["Abhay Kumar", "961"],
+      ["Shambhawi Tripathi", "966"],
+      ["Yash Jha", "967"],
+      ["Saumya Dubey", "988"],
+      ["Shubham Yadav", "989"],
+      ["Rashid Saifi", "991"],
+      ["Krishan Kumar Vishwakarma", "992"],
+      ["Sourav", "999"]
+    ];
+
+    // Keep the directory alphabetically sorted by employee name.
+    employees.sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: "base" }));
+
+    const input = document.getElementById("searchInput");
+    const results = document.getElementById("results");
+    const resultLabel = document.getElementById("resultLabel");
+    const resultCount = document.getElementById("resultCount");
+    const clearBtn = document.getElementById("clearBtn");
+
+    function initials(name) {
+      return name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join("").toUpperCase();
+    }
+
+    function normalize(value) {
+      return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+    }
+
+    // Supports flexible multi-part matching: "Abhi Yad" matches "Abhishek Yadav",
+    // and "Nanda tha" matches "Nandan Kumar Thakur".
+    function nameMatches(name, query) {
+      if (!query) return true;
+      const nameParts = name.split(/\s+/).map(normalize);
+      const queryParts = query.trim().split(/\s+/).map(normalize).filter(Boolean);
+      if (!queryParts.length) return true;
+
+      // Each search word can match the beginning of a different name word.
+      // Also permit consecutive search words to match across the full name.
+      let lastIndex = -1;
+      const orderedMatch = queryParts.every(part => {
+        const foundAt = nameParts.findIndex((word, index) => index > lastIndex && word.startsWith(part));
+        if (foundAt === -1) return false;
+        lastIndex = foundAt;
+        return true;
+      });
+      if (orderedMatch) return true;
+
+      // Fallback for partial words in any order, e.g. "Yad Abhi".
+      return queryParts.every(part => nameParts.some(word => word.startsWith(part)));
+    }
+
+    function renderResults() {
+      const rawQuery = input.value.trim();
+      const query = normalize(rawQuery);
+      const queryParts = rawQuery.toLowerCase().split(/\s+/).filter(Boolean);
+      const filtered = employees.filter(([name, extension]) => {
+        const nameMatch = nameMatches(name, rawQuery);
+        const extensionMatch = queryParts.length === 1 && extension.includes(query);
+        return nameMatch || extensionMatch;
+      });
+
+      clearBtn.style.display = query ? "block" : "none";
+      resultLabel.textContent = query ? `Search results for "${input.value.trim()}"` : "All employees";
+      resultCount.textContent = `${filtered.length} ${filtered.length === 1 ? "employee" : "employees"}`;
+
+      if (!filtered.length) {
+        results.innerHTML = '<div class="empty"><strong>No employee found</strong><br>Try another name or extension number.</div>';
+        return;
+      }
+
+      results.innerHTML = filtered.map(([name, extension]) => `
+        <article class="result-card">
+          <div class="avatar" aria-hidden="true">${initials(name)}</div>
+          <div class="details">
+            <div class="employee-name">${escapeHtml(name)}</div>
+            <div class="label">Employee extension</div>
+          </div>
+          <div class="extension">${extension}</div>
+        </article>
+      `).join("");
+    }
+
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[char]));
+    }
+
+    input.addEventListener("input", renderResults);
+    clearBtn.addEventListener("click", () => {
+      input.value = "";
+      renderResults();
+      input.focus();
+    });
+
+    renderResults();
+  </script>
+</body>
+</html>
