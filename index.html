@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Employee Extension Directory</title>
-<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3089/3089786.png">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3089/3089786.png">
   <style>
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
@@ -249,7 +250,7 @@
       ["Nadeem Khan", "883"],
       ["Vinay Shisodia", "885"],
       ["Ayush Singh", "897"],
-      ["Nandan Kumar Thakur", "900"],
+      ["Nandan Thakur", "900"],
       ["Urvashi", "909"],
       ["Bhavesh Kumar Jha", "919"],
       ["Sajan Sharma", "939"],
@@ -263,8 +264,12 @@
       ["Sourav", "999"]
     ];
 
-    // Keep the directory alphabetically sorted by employee name.
-    employees.sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: "base" }));
+    // Keep Nandan Thakur at the top; sort all other employees alphabetically.
+    employees.sort((a, b) => {
+      if (a[0].toLowerCase() === "nandan thakur") return -1;
+      if (b[0].toLowerCase() === "nandan thakur") return 1;
+      return a[0].localeCompare(b[0], undefined, { sensitivity: "base" });
+    });
 
     const input = document.getElementById("searchInput");
     const results = document.getElementById("results");
@@ -281,7 +286,7 @@
     }
 
     // Supports flexible multi-part matching: "Abhi Yad" matches "Abhishek Yadav",
-    // and "Nanda tha" matches "Nandan Kumar Thakur".
+    // and "Nanda tha" matches "Nandan Thakur".
     function nameMatches(name, query) {
       if (!query) return true;
       const nameParts = name.split(/\s+/).map(normalize);
