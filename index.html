@@ -177,7 +177,26 @@
 <body>
   <main class="directory">
     <p class="eyebrow">Quick lookup</p>
-    <h1>Employee Extension Directory</h1>
+    <h1 style="display:flex; align-items:center; gap:8px;">
+  <span>Employee Extension Directory</span>
+  <iframe
+    id="visitorCounterFrame"
+    title="Visitor counter"
+    style="width:55px; height:24px; border:0; overflow:hidden;"
+    loading="lazy">
+  </iframe>
+</h1>
+
+<script>
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    document.getElementById("visitorCounterFrame").srcdoc =
+      '<!DOCTYPE html><html><body style="margin:0;padding:0;overflow:hidden;">' +
+      '<script src="https://counter.websiteout.com/js/17/0/150/0"><\/script>' +
+      '</body></html>';
+  }, 500);
+});
+</script>
     <p class="subtitle">Search an employee by name or extension number to find who it belongs to.</p>
 
     <div class="search-wrap">
@@ -191,7 +210,8 @@
       <span class="count" id="resultCount">66 employees</span>
     </div>
     <section id="results" aria-live="polite"></section>
-    <div class="footer">Employee directory · Steneral Consulting</div>
+    <div class="footer">Employee directory · Steneral Consulting</div> 
+
   </main>
 
   <script>
