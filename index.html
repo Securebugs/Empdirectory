@@ -20,6 +20,8 @@
       align-items: stretch;
     }
     .directory {
+      position: relative;
+      z-index: 1;
       width: 100%;
       max-width: 560px;
       height: 100%;
@@ -32,6 +34,7 @@
       padding: 22px;
       box-shadow: 0 12px 36px rgba(25, 45, 80, .08);
       overflow: hidden;
+      position: relative;
     }
     .eyebrow {
       margin: 0 0 8px;
@@ -161,6 +164,140 @@
       line-height: 1.6;
     }
     .footer { flex: 0 0 auto; margin-top: 10px; text-align: center; color: #98a1b1; font-size: 11px; }
+
+    /* Ribbon stays in the same position and size, layered above the card. */
+    .visitor-ribbon {
+      position: fixed;
+      z-index: 2;
+      top: 14px;
+      left: calc(50% + 251px);
+      right: auto;
+      width: 60px;
+      height: 100px;
+      overflow: visible;
+      display: block;
+      background: transparent;
+      color: #fff;
+      border: 0;
+      box-shadow: none;
+      font-family: Arial, Helvetica, sans-serif;
+      pointer-events: none;
+    }
+    .visitor-ribbon-tab {
+      position: absolute;
+      top: 0;
+      left: 15px;
+      z-index: 2;
+      width: 30px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      writing-mode: vertical-rl;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      white-space: nowrap;
+      user-select: none;
+      color: #fff;
+      background: #d62828;
+      border: 1px solid #b91c1c;
+      border-radius: 0 7px 7px 0;
+      box-shadow: none;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+    .visitor-ribbon-panel {
+      position: absolute;
+      top: 0;
+      left: 44px;
+      width: 0;
+      height: 155px;
+      padding: 4px 0;
+      box-sizing: border-box;
+      color: #172033;
+      background: #fff;
+      border: 1px solid #d62828;
+      border-radius: 0 7px 7px 0;
+      box-shadow: none;
+      opacity: 0;
+      overflow: hidden;
+      transition: width .28s ease, opacity .16s ease .08s, padding .2s ease;
+      pointer-events: none;
+      /* The panel overlaps the tab by 1px so the seam is hidden while its red outline stays complete. */
+    }
+    .visitor-ribbon:hover .visitor-ribbon-panel,
+    .visitor-ribbon:focus-within .visitor-ribbon-panel {
+      width: 120px;
+      padding: 4px;
+      opacity: 1;
+      pointer-events: auto;
+      /* No shadow or blur; the red outline remains continuous around the expanded panel. */
+      box-shadow: none;
+    }
+    .visitor-ribbon:hover .visitor-ribbon-tab,
+    .visitor-ribbon:focus-within .visitor-ribbon-tab {
+      background: #b91c1c;
+    }
+    .visitor-ribbon-title {
+      margin: 0 0 2px;
+      font-size: 9px;
+      font-weight: 700;
+      color: #344054;
+      white-space: nowrap;
+    }
+    #visitorCounterContent {
+      position: relative;
+      height: 125px;
+      min-height: 0;
+      overflow: hidden;
+      font-size: 10px;
+      line-height: 1.25;
+    }
+    #visitorCounterFrame {
+      display: block;
+      width: 100%;
+      height: 125px;
+      border: 0;
+      background: #fff;
+      overflow: hidden;
+    }
+    @media (max-width: 900px) {
+      .visitor-ribbon {
+        left: auto;
+        right: 8px;
+        width: 180px;
+        height: 100px;
+        pointer-events: auto;
+      }
+      .visitor-ribbon-tab {
+        left: auto;
+        right: 0;
+        border-radius: 7px 0 0 7px;
+      }
+      .visitor-ribbon-panel {
+        left: 0;
+        right: 30px;
+        width: auto;
+        height: 155px;
+        border-left: 1px solid #d62828;
+        border-right: 0;
+        border-radius: 8px 0 0 8px;
+        opacity: 0;
+        padding: 4px;
+        transform: scaleX(0);
+        transform-origin: right center;
+        transition: transform .28s ease, opacity .16s ease .08s;
+      }
+      .visitor-ribbon:hover .visitor-ribbon-panel,
+      .visitor-ribbon:focus-within .visitor-ribbon-panel {
+        width: auto;
+        opacity: 1;
+        transform: scaleX(1);
+      }
+      #visitorCounterContent { height: 125px; }
+      #visitorCounterFrame { height: 125px; }
+    }
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 480px) {
       body { padding: 8px; }
@@ -177,26 +314,7 @@
 <body>
   <main class="directory">
     <p class="eyebrow">Quick lookup</p>
-    <h1 style="display:flex; align-items:center; gap:8px;">
-  <span>Employee Extension Directory</span>
-  <iframe
-    id="visitorCounterFrame"
-    title="Visitor counter"
-    style="width:55px; height:24px; border:0; overflow:hidden;"
-    loading="lazy">
-  </iframe>
-</h1>
-
-<script>
-window.addEventListener("load", function () {
-  setTimeout(function () {
-    document.getElementById("visitorCounterFrame").srcdoc =
-      '<!DOCTYPE html><html><body style="margin:0;padding:0;overflow:hidden;">' +
-      '<script src="https://counter.websiteout.com/js/17/0/150/0"><\/script>' +
-      '</body></html>';
-  }, 500);
-});
-</script>
+    <h1>Employee Extension Directory </h1>
     <p class="subtitle">Search an employee by name or extension number to find who it belongs to.</p>
 
     <div class="search-wrap">
@@ -214,7 +332,47 @@ window.addEventListener("load", function () {
 
   </main>
 
+  <!-- Visitor counter ribbon: scripts load on first hover and links work normally. -->
+  <aside class="visitor-ribbon" id="visitorRibbon" aria-label="Visitor counter">
+    <div class="visitor-ribbon-tab" aria-hidden="true">VISITORS</div>
+    <div class="visitor-ribbon-panel">
+      <p class="visitor-ribbon-title">Page visitor counter</p>
+      <div id="visitorCounterContent"><span>Loading counter…</span></div>
+    </div>
+  </aside>
+
+
+
   <script>
+    // Load the counter only when the ribbon is first opened, keeping initial page load fast.
+    const visitorRibbon = document.getElementById("visitorRibbon");
+    const visitorCounterContent = document.getElementById("visitorCounterContent");
+    let visitorCounterLoaded = false;
+
+    function loadVisitorCounter() {
+      if (visitorCounterLoaded) return;
+      visitorCounterLoaded = true;
+
+      // Isolate the supplied embed code so its scripts cannot delay the main directory.
+      const counterFrame = document.createElement("iframe");
+      counterFrame.id = "visitorCounterFrame";
+      counterFrame.title = "Page visitor counter";
+      counterFrame.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups allow-forms");
+      counterFrame.srcdoc = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<style>html,body{margin:0;padding:0;width:100%;height:100%;background:#fff;font-family:Arial,Helvetica,sans-serif;font-size:11px;overflow:hidden;box-sizing:border-box}a{display:block;color:#b91c1c;font-size:10px;line-height:13px;overflow-wrap:anywhere;margin:0 0 3px}body{min-height:0;box-sizing:border-box}</style>
+</head><body>
+<a href="https://www.versicherungen.at/studenten-versicherung/" target="_blank" rel="noopener noreferrer">Counter</a>
+<script type="text/javascript" src="https://www.freevisitorcounters.com/auth.php?id=b0976429a6c3ed037db03691712f19b2caf767c6"><\/script>
+<script type="text/javascript" src="https://www.freevisitorcounters.com/en/home/counter/1688562/t/0"><\/script>
+</body></html>`;
+      visitorCounterContent.innerHTML = "";
+      visitorCounterContent.appendChild(counterFrame);
+    }
+
+    visitorRibbon.addEventListener("mouseenter", loadVisitorCounter, { once: true });
+    visitorRibbon.addEventListener("focusin", loadVisitorCounter, { once: true });
+
     const employees = [
       ["Samad Siddaqui", "048"],
       ["Nishchal Mittal", "049"],
